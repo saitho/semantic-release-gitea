@@ -2,7 +2,7 @@
 
 const {defaultTo, castArray} = require('lodash');
 const verifyGitea = require('./lib/verify');
-const addChannelGitHub = require('./lib/add-channel');
+const addChannelGitea = require('./lib/add-channel');
 const publishGitea = require('./lib/publish');
 
 let verified;
@@ -38,7 +38,7 @@ async function addChannel(pluginConfig, context) {
     verified = true;
   }
 
-  return addChannelGitHub(pluginConfig, context);
+  return addChannelGitea(pluginConfig, context);
 }
 
 module.exports = {verifyConditions, addChannel, publish};
