@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    "@saithodev/semantic-release-sharedconf-npm"
+  ],
+  "branches": [
+    "master"
+  ]
+}

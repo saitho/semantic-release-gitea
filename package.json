@@ -1,0 +1,33 @@
+{
+  "name": "@saithodev/semantic-release-gitea",
+  "version": "1.0.0-dev",
+  "description": "Publish release notes to Gitea",
+  "main": "index.js",
+  "scripts": {
+    "docs:build": "echo 'no docs yet';",
+    "test": "echo 'no tests yet';",
+    "semantic-release": "semantic-release",
+    "commit": "git-cz"
+  },
+  "devDependencies": {
+    "@saithodev/semantic-release-sharedconf-npm": "^2.0.1",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.0.2",
+    "semantic-release": "^16.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.saitho.me/saitho/semantic-release-gitea"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saitho/semantic-release-gitea/issues"
+  },
+  "homepage": "https://github.com/saitho/semantic-release-gitea#readme",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
