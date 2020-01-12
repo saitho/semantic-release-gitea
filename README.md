@@ -52,19 +52,19 @@ The user associated with the token must have push permission to the repository.
 
 ### Environment variables
 
-| Variable                       | Description                                               |
-| ------------------------------ | --------------------------------------------------------- |
+| Variable                       | Description                               |
+| ------------------------------ | ----------------------------------------- |
 | `GITEA_TOKEN`   | **Required.** The token used to authenticate with Gitea. |
-| `GITEA_URL`       | **Required.** The URL to your Gitea instance.                           |
-| `GITEA_PREFIX` | "The GitHub Enterprise API prefix." - needed for Gitea?                         |
+| `GITEA_URL`       | **Required.** The URL to your Gitea instance.          |
+| `GITEA_PREFIX` | The Gitea API prefix. (default: /api/v1)                  |
 
 ### Options
 
-| Option                | Description                                                                                                                                                                                            | Default                                                                                                                                              |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `giteaUrl`           | The Gitea endpoint.                                                                                                                                                                        | `GH_URL` or `GITHUB_URL` environment variable.                                                                                                       |
-| `giteaApiPathPrefix` | The Gitea API prefix.                                                                                                                                                                      | `GH_PREFIX` or `GITHUB_PREFIX` environment variable.                                                                                                 |
-| `assets`              | An array of files to upload to the release. See [assets](#assets).                                                                                                                                     | -                                                                                                                                                    |
+| Option               | Description                                                                                                                                                                                            | Default                                                                                                                                              |
+|----------------------|--------------------------------------------------------------------|--------------------------------------|
+| `giteaUrl`           | The Gitea endpoint.                                                | `GITEA_URL` environment variable.                                                                                                       |
+| `giteaApiPathPrefix` | The Gitea API prefix.                                              | `GITEA_PREFIX` environment variable.                                                                                                 |
+| `assets`             | An array of files to upload to the release. See [assets](#assets). | -                                                                                                                                  |
 
 #### assets
 
@@ -103,12 +103,12 @@ files.
 
 `[{path: 'dist/MyLibrary.js', label: 'MyLibrary JS distribution'}, {path: 'dist/MyLibrary.css', label: 'MyLibrary CSS
 distribution'}]`: include the `dist/MyLibrary.js` and `dist/MyLibrary.css` files, and label them `MyLibrary JS
-distribution` and `MyLibrary CSS distribution` in the GitHub release.
+distribution` and `MyLibrary CSS distribution` in the Gitea release.
 
 `[['dist/**/*.{js,css}', '!**/*.min.*'], {path: 'build/MyLibrary.zip', label: 'MyLibrary'}]`: include all the `js` and
 `css` files in the `dist` directory and its sub-directories excluding the minified version, plus the
-`build/MyLibrary.zip` file and label it `MyLibrary` in the GitHub release.
+`build/MyLibrary.zip` file and label it `MyLibrary` in the Gitea release.
 
-`[{path: 'dist/MyLibrary.js', name: 'MyLibrary-${nextRelease.gitTag}.js', label: 'MyLibrary JS (${nextRelease.gitTag}) distribution'}]`: include the file `dist/MyLibrary.js` and upload it to the GitHub release with name `MyLibrary-v1.0.0.js` and label `MyLibrary JS (v1.0.0) distribution` which will generate the link:
+`[{path: 'dist/MyLibrary.js', name: 'MyLibrary-${nextRelease.gitTag}.js', label: 'MyLibrary JS (${nextRelease.gitTag}) distribution'}]`: include the file `dist/MyLibrary.js` and upload it to the Gitea release with name `MyLibrary-v1.0.0.js` and label `MyLibrary JS (v1.0.0) distribution` which will generate the link:
 
 > `[MyLibrary JS (v1.0.0) distribution](MyLibrary-v1.0.0.js)`
