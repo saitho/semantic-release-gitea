@@ -9,6 +9,22 @@
     "semantic-release": "semantic-release",
     "commit": "git-cz"
   },
+  "dependencies": {
+    "@semantic-release/error": "^2.2.0",
+    "aggregate-error": "^3.0.0",
+    "debug": "^4.0.0",
+    "dir-glob": "^3.0.0",
+    "fs-extra": "^8.0.0",
+    "got": "^10.0.1",
+    "globby": "^10.0.0",
+    "http-proxy-agent": "^3.0.0",
+    "https-proxy-agent": "^4.0.0",
+    "issue-parser": "^6.0.0",
+    "lodash": "^4.17.4",
+    "mime": "^2.4.3",
+    "p-filter": "^2.0.0",
+    "url-join": "^4.0.0"
+  },
   "devDependencies": {
     "@saithodev/semantic-release-sharedconf-npm": "^2.0.1",
     "commitizen": "^4.0.3",

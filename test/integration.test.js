@@ -8,10 +8,9 @@ import proxyquire from 'proxyquire';
 import clearModule from 'clear-module';
 import SemanticReleaseError from '@semantic-release/error';
 import {authenticate, upload} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
 const cwd = 'test/fixtures/files';
-const client = proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit});
+const client = proxyquire('../lib/get-client');
 
 test.beforeEach(t => {
   // Clear npm cache to refresh the module state
@@ -36,7 +35,7 @@ test.afterEach.always(() => {
 test.serial('Verify GitHub auth', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const options = {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`};
   const github = authenticate(env)
     .get(`/repos/${owner}/${repo}`)
@@ -50,7 +49,7 @@ test.serial('Verify GitHub auth', async t => {
 test.serial('Verify GitHub auth with publish options', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const options = {
     publish: {path: '@saithodev/semantic-release-gitea'},
     repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`,
@@ -67,7 +66,7 @@ test.serial('Verify GitHub auth with publish options', async t => {
 test.serial('Verify GitHub auth and assets config', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const assets = [
     {path: 'lib/file.js'},
     'file.js',
@@ -121,7 +120,7 @@ test.serial('Throw SemanticReleaseError if invalid config', async t => {
   t.is(errors[5].name, 'SemanticReleaseError');
   t.is(errors[5].code, 'EINVALIDASSIGNEES');
   t.is(errors[6].name, 'SemanticReleaseError');
-  t.is(errors[6].code, 'EINVALIDGITHUBURL');
+  t.is(errors[6].code, 'EINVALIDGITEAURL');
   t.is(errors[7].name, 'SemanticReleaseError');
   t.is(errors[7].code, 'ENOGHTOKEN');
 });
@@ -129,7 +128,7 @@ test.serial('Throw SemanticReleaseError if invalid config', async t => {
 test.serial('Publish a release with an array of assets', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const assets = [
     {path: ['upload.txt'], name: 'upload_file_name.txt'},
     {path: ['upload_other.txt'], name: 'other_file.txt', label: 'Other File'},
@@ -186,7 +185,7 @@ test.serial('Publish a release with an array of assets', async t => {
 test.serial('Publish a release with release information in assets', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const assets = [
     {
       path: ['upload.txt'],
@@ -243,7 +242,7 @@ test.serial('Publish a release with release information in assets', async t => {
 test.serial('Update a release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
@@ -275,7 +274,7 @@ test.serial('Update a release', async t => {
 test.serial('Comment and add labels on PR included in the releases', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const prs = [{number: 1, pull_request: {}, state: 'closed'}];
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -317,7 +316,7 @@ test.serial('Comment and add labels on PR included in the releases', async t => 
 test.serial('Open a new issue with the list of errors', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const errors = [
@@ -353,7 +352,7 @@ test.serial('Open a new issue with the list of errors', async t => {
 test.serial('Verify, release and notify success', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const assets = ['upload.txt', {path: 'upload_other.txt', name: 'other_file.txt', label: 'Other File'}];
   const failTitle = 'The automated release is failing 🚨';
   const options = {
@@ -437,7 +436,7 @@ test.serial('Verify, release and notify success', async t => {
 test.serial('Verify, update release and notify success', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const options = {
     publish: [{path: '@semantic-release/npm'}, {path: '@saithodev/semantic-release-gitea'}],
@@ -498,7 +497,7 @@ test.serial('Verify, update release and notify success', async t => {
 test.serial('Verify and notify failure', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const errors = [

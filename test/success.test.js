@@ -6,12 +6,11 @@ import {stub} from 'sinon';
 import proxyquire from 'proxyquire';
 import {ISSUE_ID} from '../lib/definitions/constants';
 import {authenticate} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 const success = proxyquire('../lib/success', {
-  './get-client': proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit}),
+  './get-client': proxyquire('../lib/get-client'),
 });
 
 test.beforeEach(t => {
@@ -33,7 +32,7 @@ test.serial(
     const repo = 'test_repo';
     const redirectedOwner = 'test_user_2';
     const redirectedRepo = 'test_repo_2';
-    const env = {GITHUB_TOKEN: 'github_token'};
+    const env = {GITEA_TOKEN: 'gitea_token'};
     const failTitle = 'The automated release is failing 🚨';
     const pluginConfig = {failTitle};
     const prs = [
@@ -175,7 +174,7 @@ test.serial(
 test.serial('Make multiple search queries if necessary', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const prs = [
@@ -278,7 +277,7 @@ test.serial(
   async t => {
     const owner = 'test_user';
     const repo = 'test_repo';
-    const env = {GITHUB_TOKEN: 'github_token'};
+    const env = {GITEA_TOKEN: 'gitea_token'};
     const failTitle = 'The automated release is failing 🚨';
     const pluginConfig = {failTitle};
     const prs = [
@@ -331,7 +330,7 @@ test.serial(
 test.serial('Do not add comment and labels if no PR is associated with release commits', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const options = {branch: 'master', repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -362,7 +361,7 @@ test.serial('Do not add comment and labels if no PR is associated with release c
 test.serial('Do not add comment and labels to PR/issues from other repo', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const options = {branch: 'master', repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -403,7 +402,7 @@ test.serial('Do not add comment and labels to PR/issues from other repo', async 
 test.serial('Ignore missing and forbidden issues/PRs', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const prs = [
@@ -474,7 +473,7 @@ test.serial('Ignore missing and forbidden issues/PRs', async t => {
 test.serial('Add custom comment and labels', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {
     successComment: `last release: \${lastRelease.version} nextRelease: \${nextRelease.version} branch: \${branch.name} commits: \${commits.length} releases: \${releases.length} PR attribute: \${issue.prop}`,
@@ -530,7 +529,7 @@ test.serial('Add custom comment and labels', async t => {
 test.serial('Add custom label', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {releasedLabels: ['custom label'], failTitle};
   const prs = [{number: 1, pull_request: {}, state: 'closed'}];
@@ -580,7 +579,7 @@ test.serial('Add custom label', async t => {
 test.serial('Comment on issue/PR without ading a label', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {releasedLabels: false, failTitle};
   const prs = [{number: 1, pull_request: {}, state: 'closed'}];
@@ -627,7 +626,7 @@ test.serial('Comment on issue/PR without ading a label', async t => {
 test.serial('Ignore errors when adding comments and closing issues', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const issues = [
@@ -699,7 +698,7 @@ test.serial('Ignore errors when adding comments and closing issues', async t => 
 test.serial('Close open issues when a release is successful', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const issues = [
@@ -749,7 +748,7 @@ test.serial('Close open issues when a release is successful', async t => {
 test.serial('Skip commention on issues/PR if "successComment" is "false"', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle, successComment: false};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -783,7 +782,7 @@ test.serial('Skip commention on issues/PR if "successComment" is "false"', async
 test.serial('Skip closing issues if "failComment" is "false"', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {failComment: false};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const commits = [{hash: '123', message: 'Commit 1 message'}];
@@ -815,7 +814,7 @@ test.serial('Skip closing issues if "failComment" is "false"', async t => {
 test.serial('Skip closing issues if "failTitle" is "false"', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {failTitle: false};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const commits = [{hash: '123', message: 'Commit 1 message'}];

@@ -6,12 +6,11 @@ import proxyquire from 'proxyquire';
 import SemanticReleaseError from '@semantic-release/error';
 import {ISSUE_ID} from '../lib/definitions/constants';
 import {authenticate} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 const fail = proxyquire('../lib/fail', {
-  './get-client': proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit}),
+  './get-client': proxyquire('../lib/get-client'),
 });
 
 test.beforeEach(t => {
@@ -31,7 +30,7 @@ test.serial('Open a new issue with the list of errors', async t => {
   const repo = 'test_repo';
   const redirectedOwner = 'test_user_2';
   const redirectedRepo = 'test_repo_2';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -65,7 +64,7 @@ test.serial('Open a new issue with the list of errors', async t => {
 test.serial('Open a new issue with the list of errors, retrying 4 times', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -113,7 +112,7 @@ test.serial('Open a new issue with the list of errors, retrying 4 times', async 
 test.serial('Open a new issue with the list of errors and custom title and comment', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'Custom title';
   const failComment = `branch \${branch.name} \${errors[0].message} \${errors[1].message} \${errors[2].message}`;
   const pluginConfig = {failTitle, failComment};
@@ -148,7 +147,7 @@ test.serial('Open a new issue with the list of errors and custom title and comme
 test.serial('Open a new issue with assignees and the list of errors', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const assignees = ['user1', 'user2'];
   const pluginConfig = {failTitle, assignees};
@@ -183,7 +182,7 @@ test.serial('Open a new issue with assignees and the list of errors', async t =>
 test.serial('Open a new issue without labels and the list of errors', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const labels = false;
   const pluginConfig = {failTitle, labels};
@@ -217,7 +216,7 @@ test.serial('Open a new issue without labels and the list of errors', async t =>
 test.serial('Update the first existing issue with the list of errors', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const failTitle = 'The automated release is failing 🚨';
   const pluginConfig = {failTitle};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -255,7 +254,7 @@ test.serial('Update the first existing issue with the list of errors', async t =
 test.serial('Skip if "failComment" is "false"', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {failComment: false};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const errors = [
@@ -272,7 +271,7 @@ test.serial('Skip if "failComment" is "false"', async t => {
 test.serial('Skip if "failTitle" is "false"', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {failTitle: false};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
   const errors = [

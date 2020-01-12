@@ -3,13 +3,12 @@ import nock from 'nock';
 import {stub} from 'sinon';
 import proxyquire from 'proxyquire';
 import {authenticate} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 // const cwd = 'test/fixtures/files';
 const addChannel = proxyquire('../lib/add-channel', {
-  './get-client': proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit}),
+  './get-client': proxyquire('../lib/get-client'),
 });
 
 test.beforeEach(t => {
@@ -27,7 +26,7 @@ test.afterEach.always(() => {
 test.serial('Update a release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -60,7 +59,7 @@ test.serial('Update a release', async t => {
 test.serial('Update a maintenance release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', channel: '1.x', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -93,7 +92,7 @@ test.serial('Update a maintenance release', async t => {
 test.serial('Update a prerelease', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -159,7 +158,7 @@ test.serial('Update a release with a custom github url', async t => {
 test.serial('Update a release, retrying 4 times', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -202,7 +201,7 @@ test.serial('Update a release, retrying 4 times', async t => {
 test.serial('Create the new release if current one is missing', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -237,7 +236,7 @@ test.serial('Create the new release if current one is missing', async t => {
 test.serial('Throw error if cannot read current release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -264,7 +263,7 @@ test.serial('Throw error if cannot read current release', async t => {
 test.serial('Throw error if cannot create missing current release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -299,7 +298,7 @@ test.serial('Throw error if cannot create missing current release', async t => {
 test.serial('Throw error if cannot update release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};

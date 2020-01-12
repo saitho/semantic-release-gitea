@@ -3,12 +3,11 @@ import nock from 'nock';
 import {stub} from 'sinon';
 import proxyquire from 'proxyquire';
 import {authenticate} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 const verify = proxyquire('../lib/verify', {
-  './get-client': proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit}),
+  './get-client': proxyquire('../lib/get-client'),
 });
 
 test.beforeEach(t => {
@@ -27,7 +26,6 @@ test.serial('Verify package, token and repository access', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
   const env = {GITEA_TOKEN: 'gitea_token'};
-  const proxy = 'https://localhost';
   const assets = [{path: 'lib/file.js'}, 'file.js'];
   const successComment = 'Test comment';
   const failTitle = 'Test title';
@@ -39,7 +37,7 @@ test.serial('Verify package, token and repository access', async t => {
 
   await t.notThrowsAsync(
     verify(
-      {proxy, assets, successComment, failTitle, failComment, labels},
+      {assets, successComment, failTitle, failComment, labels},
       {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
     )
   );
@@ -47,12 +45,11 @@ test.serial('Verify package, token and repository access', async t => {
 });
 
 test.serial(
-  'Verify package, token and repository access with "proxy", "asset", "successComment", "failTitle", "failComment" and "label" set to "null"',
+  'Verify package, token and repository access with "asset", "successComment", "failTitle", "failComment" and "label" set to "null"',
   async t => {
     const owner = 'test_user';
     const repo = 'test_repo';
     const env = {GITEA_TOKEN: 'gitea_token'};
-    const proxy = null;
     const assets = null;
     const successComment = null;
     const failTitle = null;
@@ -64,7 +61,7 @@ test.serial(
 
     await t.notThrowsAsync(
       verify(
-        {proxy, assets, successComment, failTitle, failComment, labels},
+        {assets, successComment, failTitle, failComment, labels},
         {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
       )
     );
@@ -137,7 +134,6 @@ test.serial('Verify package, token and repository with environment variables', a
     GITEA_URL: 'https://othertesturl.com:443',
     GITEA_TOKEN: 'gitea_token',
     GITEA_PREFIX: 'prefix',
-    HTTP_PROXY: 'https://localhost',
   };
   const github = authenticate(env)
     .get(`/repos/${owner}/${repo}`)
@@ -155,9 +151,9 @@ test.serial('Verify package, token and repository access with alternative enviro
   const owner = 'test_user';
   const repo = 'test_repo';
   const env = {
-    GITHUB_URL: 'https://othertesturl.com:443',
-    GITHUB_TOKEN: 'github_token',
-    GITHUB_PREFIX: 'prefix',
+    GITEA_URL: 'https://othertesturl.com:443',
+    GITEA_TOKEN: 'gitea_token',
+    GITEA_PREFIX: 'prefix',
   };
   const github = authenticate(env)
     .get(`/repos/${owner}/${repo}`)
@@ -166,44 +162,6 @@ test.serial('Verify package, token and repository access with alternative enviro
   await t.notThrowsAsync(
     verify({}, {env, options: {repositoryUrl: `git@othertesturl.com:${owner}/${repo}.git`}, logger: t.context.logger})
   );
-  t.true(github.isDone());
-});
-
-test.serial('Verify "proxy" is a String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const proxy = 'https://locahost';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  await t.notThrowsAsync(
-    verify(
-      {proxy},
-      {env, options: {repositoryUrl: `git@othertesturl.com:${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.true(github.isDone());
-});
-
-test.serial('Verify "proxy" is an object with "host" and "port" properties', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const proxy = {host: 'locahost', port: 80};
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  await t.notThrowsAsync(
-    verify(
-      {proxy},
-      {env, options: {repositoryUrl: `git@othertesturl.com:${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
   t.true(github.isDone());
 });
 
@@ -340,39 +298,6 @@ test.serial('Verify "assignees" is a String', async t => {
   t.true(github.isDone());
 });
 
-// https://gitea.io/semantic-release/github/issues/182
-test.serial('Verify if run in GitHub Action', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'v1.1234567890123456789012345678901234567890', GITHUB_ACTION: 'Release'};
-  const proxy = 'https://localhost';
-  const assets = [{path: 'lib/file.js'}, 'file.js'];
-  const successComment = 'Test comment';
-  const failTitle = 'Test title';
-  const failComment = 'Test comment';
-  const labels = ['semantic-release'];
-
-  await t.notThrowsAsync(
-    verify(
-      {proxy, assets, successComment, failTitle, failComment, labels},
-      {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-});
-
-test('Throw SemanticReleaseError for missing github token', async t => {
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {},
-      {env: {}, options: {repositoryUrl: 'https://gitea.io/semantic-release/github.git'}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'ENOGHTOKEN');
-});
-
 test.serial('Throw SemanticReleaseError for invalid token', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
@@ -400,7 +325,7 @@ test('Throw SemanticReleaseError for invalid repositoryUrl', async t => {
 
   t.is(errors.length, 0);
   t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDGITHUBURL');
+  t.is(error.code, 'EINVALIDGITEAURL');
 });
 
 test.serial("Throw SemanticReleaseError if token doesn't have the push permission on the repository", async t => {
@@ -454,38 +379,6 @@ test.serial('Throw error if github return any other errors', async t => {
 
   t.is(error.status, 500);
   t.true(github.isDone());
-});
-
-test('Throw SemanticReleaseError if "proxy" option is not a String or an Object', async t => {
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const proxy = 42;
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {proxy},
-      {env, options: {repositoryUrl: 'https://gitea.io/semantic-release/github.git'}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDPROXY');
-});
-
-test('Throw SemanticReleaseError if "proxy" option is an Object with invalid properties', async t => {
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const proxy = {host: 42};
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {proxy},
-      {env, options: {repositoryUrl: 'https://gitea.io/semantic-release/github.git'}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDPROXY');
 });
 
 test.serial('Throw SemanticReleaseError if "assets" option is not a String or an Array of Objects', async t => {

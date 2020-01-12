@@ -6,10 +6,9 @@ import proxyquire from 'proxyquire';
 import {ISSUE_ID} from '../lib/definitions/constants';
 import findSRIssues from '../lib/find-sr-issues';
 import {authenticate} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
-const githubToken = 'github_token';
-const client = proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit})({githubToken});
+const giteaToken = 'gitea_token';
+const client = proxyquire('../lib/get-client')({giteaToken});
 
 test.beforeEach(t => {
   // Mock logger
@@ -26,14 +25,14 @@ test.afterEach.always(() => {
 test.serial('Filter out issues without ID', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const githubToken = 'github_token';
+  const giteaToken = 'gitea_token';
   const title = 'The automated release is failing 🚨';
   const issues = [
     {number: 1, body: 'Issue 1 body', title},
     {number: 2, body: `Issue 2 body\n\n${ISSUE_ID}`, title},
     {number: 3, body: `Issue 3 body\n\n${ISSUE_ID}`, title},
   ];
-  const github = authenticate({}, {githubToken})
+  const github = authenticate({}, {giteaToken})
     .get(
       `/search/issues?q=${escape('in:title')}+${escape(`repo:${owner}/${repo}`)}+${escape('type:issue')}+${escape(
         'state:open'
@@ -54,10 +53,10 @@ test.serial('Filter out issues without ID', async t => {
 test.serial('Return empty array if not issues found', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const githubToken = 'github_token';
+  const giteaToken = 'gitea_token';
   const title = 'The automated release is failing 🚨';
   const issues = [];
-  const github = authenticate({}, {githubToken})
+  const github = authenticate({}, {giteaToken})
     .get(
       `/search/issues?q=${escape('in:title')}+${escape(`repo:${owner}/${repo}`)}+${escape('type:issue')}+${escape(
         'state:open'
@@ -75,13 +74,13 @@ test.serial('Return empty array if not issues found', async t => {
 test.serial('Return empty array if not issues has matching ID', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const githubToken = 'github_token';
+  const giteaToken = 'gitea_token';
   const title = 'The automated release is failing 🚨';
   const issues = [
     {number: 1, body: 'Issue 1 body', title},
     {number: 2, body: 'Issue 2 body', title},
   ];
-  const github = authenticate({}, {githubToken})
+  const gitea = authenticate({}, {giteaToken})
     .get(
       `/search/issues?q=${escape('in:title')}+${escape(`repo:${owner}/${repo}`)}+${escape('type:issue')}+${escape(
         'state:open'
@@ -99,7 +98,7 @@ test.serial('Retries 4 times', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
   const title = 'The automated release is failing :rotating_light:';
-  const github = authenticate({}, {githubToken})
+  const gitea = authenticate({}, {giteaToken})
     .get(
       `/search/issues?q=${escape('in:title')}+${escape(`repo:${owner}/${repo}`)}+${escape('type:issue')}+${escape(
         'state:open'
@@ -118,7 +117,7 @@ test.serial('Do not retry on 401 error', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
   const title = 'The automated release is failing :rotating_light:';
-  const github = authenticate({}, {githubToken})
+  const gitea = authenticate({}, {giteaToken})
     .get(
       `/search/issues?q=${escape('in:title')}+${escape(`repo:${owner}/${repo}`)}+${escape('type:issue')}+${escape(
         'state:open'

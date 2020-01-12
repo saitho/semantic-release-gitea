@@ -7,13 +7,12 @@ import {stub} from 'sinon';
 import proxyquire from 'proxyquire';
 import tempy from 'tempy';
 import {authenticate, upload} from './helpers/mock-github';
-import rateLimit from './helpers/rate-limit';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 const cwd = 'test/fixtures/files';
 const publish = proxyquire('../lib/publish', {
-  './get-client': proxyquire('../lib/get-client', {'./definitions/rate-limit': rateLimit}),
+  './get-client': proxyquire('../lib/get-client'),
 });
 
 test.beforeEach(t => {
@@ -358,7 +357,7 @@ test.serial('Publish a release with an array of missing assets', async t => {
 test.serial('Throw error without retries for 400 error', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITHUB_TOKEN: 'github_token'};
+  const env = {GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};

@@ -1,7 +1,7 @@
 /* eslint require-atomic-updates: off */
 
 const {defaultTo, castArray} = require('lodash');
-const verifyGitHub = require('./lib/verify');
+const verifyGitea = require('./lib/verify');
 const addChannelGitHub = require('./lib/add-channel');
 const publishGitHub = require('./lib/publish');
 const successGitHub = require('./lib/success');
@@ -11,7 +11,7 @@ let verified;
 
 async function verifyConditions(pluginConfig, context) {
   const {options} = context;
-  // If the GitHub publish plugin is used and has `assets`, `successComment`, `failComment`, `failTitle`, `labels` or `assignees` configured, validate it now in order to prevent any release if the configuration is wrong
+  // If the Gitea publish plugin is used and has `assets`, `successComment`, `failComment`, `failTitle`, `labels` or `assignees` configured, validate it now in order to prevent any release if the configuration is wrong
   if (options.publish) {
     const publishPlugin =
       castArray(options.publish).find(config => config.path && config.path === '@saithodev/semantic-release-gitea') || {};
@@ -24,13 +24,13 @@ async function verifyConditions(pluginConfig, context) {
     pluginConfig.assignees = defaultTo(pluginConfig.assignees, publishPlugin.assignees);
   }
 
-  await verifyGitHub(pluginConfig, context);
+  await verifyGitea(pluginConfig, context);
   verified = true;
 }
 
 async function publish(pluginConfig, context) {
   if (!verified) {
-    await verifyGitHub(pluginConfig, context);
+    await verifyGitea(pluginConfig, context);
     verified = true;
   }
 
@@ -39,7 +39,7 @@ async function publish(pluginConfig, context) {
 
 async function addChannel(pluginConfig, context) {
   if (!verified) {
-    await verifyGitHub(pluginConfig, context);
+    await verifyGitea(pluginConfig, context);
     verified = true;
   }
 
@@ -48,7 +48,7 @@ async function addChannel(pluginConfig, context) {
 
 async function success(pluginConfig, context) {
   if (!verified) {
-    await verifyGitHub(pluginConfig, context);
+    await verifyGitea(pluginConfig, context);
     verified = true;
   }
 
@@ -57,7 +57,7 @@ async function success(pluginConfig, context) {
 
 async function fail(pluginConfig, context) {
   if (!verified) {
-    await verifyGitHub(pluginConfig, context);
+    await verifyGitea(pluginConfig, context);
     verified = true;
   }
 
