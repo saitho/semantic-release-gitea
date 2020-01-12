@@ -88,12 +88,10 @@ test.serial('Verify GitHub auth and assets config', async t => {
 test.serial('Throw SemanticReleaseError if invalid config', async t => {
   const env = {};
   const assets = [{wrongProperty: 'lib/file.js'}];
-  const labels = 42;
-  const assignees = 42;
   const options = {
     publish: [
       {path: '@semantic-release/npm'},
-      {path: '@saithodev/semantic-release-gitea', assets, labels, assignees},
+      {path: '@saithodev/semantic-release-gitea', assets},
     ],
     repositoryUrl: 'invalid_url',
   };
@@ -105,13 +103,9 @@ test.serial('Throw SemanticReleaseError if invalid config', async t => {
   t.is(errors[0].name, 'SemanticReleaseError');
   t.is(errors[0].code, 'EINVALIDASSETS');
   t.is(errors[1].name, 'SemanticReleaseError');
-  t.is(errors[1].code, 'EINVALIDLABELS');
+  t.is(errors[1].code, 'EINVALIDGITEAURL');
   t.is(errors[2].name, 'SemanticReleaseError');
-  t.is(errors[2].code, 'EINVALIDASSIGNEES');
-  t.is(errors[3].name, 'SemanticReleaseError');
-  t.is(errors[3].code, 'EINVALIDGITEAURL');
-  t.is(errors[4].name, 'SemanticReleaseError');
-  t.is(errors[4].code, 'ENOGHTOKEN');
+  t.is(errors[2].code, 'ENOGHTOKEN');
 });
 
 test.serial('Publish a release with an array of assets', async t => {

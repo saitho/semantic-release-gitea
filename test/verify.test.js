@@ -27,14 +27,13 @@ test.serial('Verify package, token and repository access', async t => {
   const repo = 'test_repo';
   const env = {GITEA_TOKEN: 'gitea_token'};
   const assets = [{path: 'lib/file.js'}, 'file.js'];
-  const labels = ['semantic-release'];
   const github = authenticate(env)
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {permissions: {push: true}});
 
   await t.notThrowsAsync(
     verify(
-      {assets, labels},
+      {assets},
       {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
     )
   );
@@ -42,20 +41,19 @@ test.serial('Verify package, token and repository access', async t => {
 });
 
 test.serial(
-  'Verify package, token and repository access with "asset" and "label" set to "null"',
+  'Verify package, token and repository access with "asset" set to "null"',
   async t => {
     const owner = 'test_user';
     const repo = 'test_repo';
     const env = {GITEA_TOKEN: 'gitea_token'};
     const assets = null;
-    const labels = null;
     const github = authenticate(env)
       .get(`/repos/${owner}/${repo}`)
       .reply(200, {permissions: {push: true}});
 
     await t.notThrowsAsync(
       verify(
-        {assets, labels},
+        {assets},
         {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
       )
     );
@@ -254,44 +252,6 @@ test.serial('Verify "assets" is an Array of Object with a glob Arrays in path pr
   t.true(github.isDone());
 });
 
-test.serial('Verify "labels" is a String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const labels = 'semantic-release';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  await t.notThrowsAsync(
-    verify(
-      {labels},
-      {env, options: {repositoryUrl: `git@othertesturl.com:${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.true(github.isDone());
-});
-
-test.serial('Verify "assignees" is a String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const assignees = 'user';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  await t.notThrowsAsync(
-    verify(
-      {assignees},
-      {env, options: {repositoryUrl: `git@othertesturl.com:${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.true(github.isDone());
-});
-
 test.serial('Throw SemanticReleaseError for invalid token', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
@@ -465,201 +425,3 @@ test.serial(
     t.true(github.isDone());
   }
 );
-
-test.serial('Throw SemanticReleaseError if "labels" option is not a String or an Array of String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const labels = 42;
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {labels},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDLABELS');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "labels" option is an Array with invalid elements', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const labels = ['label1', 42];
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {labels},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDLABELS');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "labels" option is a whitespace String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const labels = '  \n \r ';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {labels},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDLABELS');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "assignees" option is not a String or an Array of String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const assignees = 42;
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {assignees},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDASSIGNEES');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "assignees" option is an Array with invalid elements', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const assignees = ['user', 42];
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {assignees},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDASSIGNEES');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "assignees" option is a whitespace String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const assignees = '  \n \r ';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {assignees},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDASSIGNEES');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "releasedLabels" option is not a String or an Array of String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const releasedLabels = 42;
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {releasedLabels},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDRELEASEDLABELS');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "releasedLabels" option is an Array with invalid elements', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const releasedLabels = ['label1', 42];
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {releasedLabels},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDRELEASEDLABELS');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "releasedLabels" option is a whitespace String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const releasedLabels = '  \n \r ';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {releasedLabels},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDRELEASEDLABELS');
-  t.true(github.isDone());
-});

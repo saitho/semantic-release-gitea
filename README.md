@@ -1,16 +1,17 @@
 # @saithodev/emantic-release-gitea
 
 [**semantic-release**](https://github.com/semantic-release/semantic-release) plugin to publish a
-[Gitea release](h...) and comment on released Pull Requests/Issues.
+Gitea release and comment on released Pull Requests/Issues.
 
 [![Build Status](https://travis-ci.com/saitho/semantic-release-gitea.svg?branch=master)](https://travis-ci.com/saitho/semantic-release-gitea)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 | Step               | Description                                                                                                                                                                                                                              |
 |--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `verifyConditions` | Verify the presence and the validity of the authentication (set via [environment variables](#environment-variables)) and the [assets](#assets) option configuration.                                                                     |
-| `publish`          | Publish a [GitHub release](https://help.github.com/articles/about-releases), optionally uploading file assets.                                                                                                                           |
-| `addChannel`       | Update a [GitHub release](https://help.github.com/articles/about-releases)'s `pre-release` field.                                                                                                                                        |
+| `publish`          | Publish a Gitea release, optionally uploading file assets.                                                                                                                           |
+| `addChannel`       | Update a Gitea release's `pre-release` field.                                                                                                                                        |
 
 ## Install
 
@@ -37,7 +38,7 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
 }
 ```
 
-With this example [Gitea releases](https://help.github.com/articles/about-releases) will be published with the file `dist/asset.min.css` and `dist/asset.min.js`.
+With this example Gitea releases will be published with the file `dist/asset.min.css` and `dist/asset.min.js`.
 
 ## Configuration
 
@@ -45,12 +46,9 @@ With this example [Gitea releases](https://help.github.com/articles/about-releas
 
 The Gitea authentication configuration is **required** and can be set via [environment variables](#environment-variables).
 
-Follow the [Creating a personal access token for the command line](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line) documentation to obtain an authentication token. The token has to be made available in your CI environment via the `GH_TOKEN` environment variable. The user associated with the token must have push permission to the repository.
-
-When creating the token, the **minimum required scopes** are:
-
-- [`repo`](https://github.com/settings/tokens/new?scopes=repo) for a private repository
-- [`public_repo`](https://github.com/settings/tokens/new?scopes=public_repo) for a public repository
+Create a API key token via your Gitea installation’s web interface: `Settings | Applications | Generate New Token.`.
+The token has to be made available in your CI environment via the `GITEA_TOKEN` environment variable.
+The user associated with the token must have push permission to the repository.
 
 ### Environment variables
 
@@ -64,12 +62,9 @@ When creating the token, the **minimum required scopes** are:
 
 | Option                | Description                                                                                                                                                                                            | Default                                                                                                                                              |
 |-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `githubUrl`           | The GitHub Enterprise endpoint.                                                                                                                                                                        | `GH_URL` or `GITHUB_URL` environment variable.                                                                                                       |
-| `githubApiPathPrefix` | The GitHub Enterprise API prefix.                                                                                                                                                                      | `GH_PREFIX` or `GITHUB_PREFIX` environment variable.                                                                                                 |
+| `giteaUrl`           | The Gitea endpoint.                                                                                                                                                                        | `GH_URL` or `GITHUB_URL` environment variable.                                                                                                       |
+| `giteaApiPathPrefix` | The Gitea API prefix.                                                                                                                                                                      | `GH_PREFIX` or `GITHUB_PREFIX` environment variable.                                                                                                 |
 | `assets`              | An array of files to upload to the release. See [assets](#assets).                                                                                                                                     | -                                                                                                                                                    |
-| `labels`              | The [labels](https://help.github.com/articles/about-labels) to add to the issue created when a release fails. Set to `false` to not add any label.                                                     | `['semantic-release']`                                                                                                                               |
-| `assignees`           | The [assignees](https://help.github.com/articles/assigning-issues-and-pull-requests-to-other-github-users) to add to the issue created when a release fails.                                           | -                                                                                                                                                    |
-| `releasedLabels`      | The [labels](https://help.github.com/articles/about-labels) to add to each issue and pull request resolved by the release. Set to `false` to not add any label. See [releasedLabels](#releasedlabels). | `['released<%= nextRelease.channel ? \` on @\${nextRelease.channel}\` : "" %>']`                                                                     |
 
 #### assets
 
@@ -117,22 +112,3 @@ distribution` and `MyLibrary CSS distribution` in the GitHub release.
 `[{path: 'dist/MyLibrary.js', name: 'MyLibrary-${nextRelease.gitTag}.js', label: 'MyLibrary JS (${nextRelease.gitTag}) distribution'}]`: include the file `dist/MyLibrary.js` and upload it to the GitHub release with name `MyLibrary-v1.0.0.js` and label `MyLibrary JS (v1.0.0) distribution` which will generate the link:
 
 > `[MyLibrary JS (v1.0.0) distribution](MyLibrary-v1.0.0.js)`
-
-#### releasedLabels
-
-Each label name is generated with [Lodash template](https://lodash.com/docs#template). The following variables are available:
-
-| Parameter     | Description                                                                                                                                                                                                                                                                   |
-|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `branch`      | `Object` with `name`, `type`, `channel`, `range` and `prerelease` properties of the branch from which the release is done.                                                                                                                                                    |
-| `lastRelease` | `Object` with `version`, `channel`, `gitTag` and `gitHead` of the last release.                                                                                                                                                                                               |
-| `nextRelease` | `Object` with `version`, `channel`, `gitTag`, `gitHead` and `notes` of the release being done.                                                                                                                                                                                |
-| `commits`     | `Array` of commit `Object`s with `hash`, `subject`, `body` `message` and `author`.                                                                                                                                                                                            |
-| `releases`    | `Array` with a release `Object`s for each release published, with optional release data such as `name` and `url`.                                                                                                                                                             |
-| `issue`       | A [GitHub API pull request object](https://developer.github.com/v3/search/#search-issues) for pull requests related to a commit, or an `Object` with the `number` property for issues resolved via [keywords](https://help.github.com/articles/closing-issues-using-keywords) |
-
-##### releasedLabels example
-
-The `releasedLabels` ```['released<%= nextRelease.channel ? ` on @\${nextRelease.channel}` : "" %> from <%= branch.name %>']``` will generate the label:
-
-> released on @next from branch next
