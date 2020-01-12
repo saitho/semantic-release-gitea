@@ -4,22 +4,17 @@ const {defaultTo, castArray} = require('lodash');
 const verifyGitea = require('./lib/verify');
 const addChannelGitHub = require('./lib/add-channel');
 const publishGitea = require('./lib/publish');
-const successGitHub = require('./lib/success');
-const failGitHub = require('./lib/fail');
 
 let verified;
 
 async function verifyConditions(pluginConfig, context) {
   const {options} = context;
-  // If the Gitea publish plugin is used and has `assets`, `successComment`, `failComment`, `failTitle`, `labels` or `assignees` configured, validate it now in order to prevent any release if the configuration is wrong
+  // If the Gitea publish plugin is used and has `assets`, `labels` or `assignees` configured, validate it now in order to prevent any release if the configuration is wrong
   if (options.publish) {
     const publishPlugin =
       castArray(options.publish).find(config => config.path && config.path === '@saithodev/semantic-release-gitea') || {};
 
     pluginConfig.assets = defaultTo(pluginConfig.assets, publishPlugin.assets);
-    pluginConfig.successComment = defaultTo(pluginConfig.successComment, publishPlugin.successComment);
-    pluginConfig.failComment = defaultTo(pluginConfig.failComment, publishPlugin.failComment);
-    pluginConfig.failTitle = defaultTo(pluginConfig.failTitle, publishPlugin.failTitle);
     pluginConfig.labels = defaultTo(pluginConfig.labels, publishPlugin.labels);
     pluginConfig.assignees = defaultTo(pluginConfig.assignees, publishPlugin.assignees);
   }
@@ -46,22 +41,4 @@ async function addChannel(pluginConfig, context) {
   return addChannelGitHub(pluginConfig, context);
 }
 
-async function success(pluginConfig, context) {
-  if (!verified) {
-    await verifyGitea(pluginConfig, context);
-    verified = true;
-  }
-
-  await successGitHub(pluginConfig, context);
-}
-
-async function fail(pluginConfig, context) {
-  if (!verified) {
-    await verifyGitea(pluginConfig, context);
-    verified = true;
-  }
-
-  await failGitHub(pluginConfig, context);
-}
-
-module.exports = {verifyConditions, addChannel, publish, success, fail};
+module.exports = {verifyConditions, addChannel, publish};

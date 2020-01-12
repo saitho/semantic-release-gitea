@@ -27,9 +27,6 @@ test.serial('Verify package, token and repository access', async t => {
   const repo = 'test_repo';
   const env = {GITEA_TOKEN: 'gitea_token'};
   const assets = [{path: 'lib/file.js'}, 'file.js'];
-  const successComment = 'Test comment';
-  const failTitle = 'Test title';
-  const failComment = 'Test comment';
   const labels = ['semantic-release'];
   const github = authenticate(env)
     .get(`/repos/${owner}/${repo}`)
@@ -37,7 +34,7 @@ test.serial('Verify package, token and repository access', async t => {
 
   await t.notThrowsAsync(
     verify(
-      {assets, successComment, failTitle, failComment, labels},
+      {assets, labels},
       {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
     )
   );
@@ -45,15 +42,12 @@ test.serial('Verify package, token and repository access', async t => {
 });
 
 test.serial(
-  'Verify package, token and repository access with "asset", "successComment", "failTitle", "failComment" and "label" set to "null"',
+  'Verify package, token and repository access with "asset" and "label" set to "null"',
   async t => {
     const owner = 'test_user';
     const repo = 'test_repo';
     const env = {GITEA_TOKEN: 'gitea_token'};
     const assets = null;
-    const successComment = null;
-    const failTitle = null;
-    const failComment = null;
     const labels = null;
     const github = authenticate(env)
       .get(`/repos/${owner}/${repo}`)
@@ -61,7 +55,7 @@ test.serial(
 
     await t.notThrowsAsync(
       verify(
-        {assets, successComment, failTitle, failComment, labels},
+        {assets, labels},
         {env, options: {repositoryUrl: `git+https://othertesturl.com/${owner}/${repo}.git`}, logger: t.context.logger}
       )
     );
@@ -471,204 +465,6 @@ test.serial(
     t.true(github.isDone());
   }
 );
-
-test.serial('Throw SemanticReleaseError if "successComment" option is not a String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const successComment = 42;
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {successComment},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDSUCCESSCOMMENT');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "successComment" option is an empty String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const successComment = '';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {successComment},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDSUCCESSCOMMENT');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "successComment" option is a whitespace String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const successComment = '  \n \r ';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {successComment},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDSUCCESSCOMMENT');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "failTitle" option is not a String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const failTitle = 42;
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {failTitle},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDFAILTITLE');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "failTitle" option is an empty String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const failTitle = '';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {failTitle},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDFAILTITLE');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "failTitle" option is a whitespace String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const failTitle = '  \n \r ';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {failTitle},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDFAILTITLE');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "failComment" option is not a String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const failComment = 42;
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {failComment},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDFAILCOMMENT');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "failComment" option is an empty String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const failComment = '';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {failComment},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDFAILCOMMENT');
-  t.true(github.isDone());
-});
-
-test.serial('Throw SemanticReleaseError if "failComment" option is a whitespace String', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const failComment = '  \n \r ';
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}`)
-    .reply(200, {permissions: {push: true}});
-
-  const [error, ...errors] = await t.throwsAsync(
-    verify(
-      {failComment},
-      {env, options: {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`}, logger: t.context.logger}
-    )
-  );
-
-  t.is(errors.length, 0);
-  t.is(error.name, 'SemanticReleaseError');
-  t.is(error.code, 'EINVALIDFAILCOMMENT');
-  t.true(github.isDone());
-});
 
 test.serial('Throw SemanticReleaseError if "labels" option is not a String or an Array of String', async t => {
   const owner = 'test_user';
