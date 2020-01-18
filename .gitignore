@@ -5,6 +5,8 @@ dist
 !jest.config.js
 coverage
 docs
-.scannerwork/
+.sonar
+.scannerwork
 *.tgz
 pnpm-debug.log
+.nyc_output
