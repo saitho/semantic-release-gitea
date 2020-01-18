@@ -1,8 +1,5 @@
-import nock from 'nock';
-const urlJoin = require('url-join');
-
 /**
- * Return a `nock` object setup to respond to a github authentication request. Other expectation and responses can be chained.
+ * Return a `nock` object setup to respond to a Gitea authentication request. Other expectation and responses can be chained.
  *
  * @param {Object} [env={}] Environment variables.
  * @param {String} [giteaToken=env.GITEA_TOKEN || 'GITEA_TOKEN'] The github token to return in the authentication response.
@@ -18,5 +15,10 @@ export function authenticate(
     giteaApiPathPrefix = env.GITEA_PREFIX || '/api/v1',
   } = {}
 ) {
-  return nock(urlJoin(giteaUrl, giteaApiPathPrefix), {reqheaders: {'Authorization-TOKEN': giteaToken}});
+    const urlJoin = require('url-join');
+    const nock = require('nock');
+    return nock(
+        urlJoin(giteaUrl, giteaApiPathPrefix),
+        {reqheaders: {'Authorization-TOKEN': giteaToken}}
+    );
 }

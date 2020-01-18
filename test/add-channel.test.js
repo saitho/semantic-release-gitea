@@ -1,7 +1,7 @@
 import test from 'ava';
 import nock from 'nock';
 import {stub} from 'sinon';
-import {authenticate} from './helpers/mock-github';
+import {authenticate} from './helpers/_mock-gitea';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 

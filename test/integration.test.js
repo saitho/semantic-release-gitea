@@ -1,13 +1,11 @@
-import path from 'path';
 import {escape} from 'querystring';
 import test from 'ava';
-import {stat} from 'fs-extra';
 import nock from 'nock';
 import {stub} from 'sinon';
 import proxyquire from 'proxyquire';
 import clearModule from 'clear-module';
 import SemanticReleaseError from '@semantic-release/error';
-import {authenticate, upload} from './helpers/mock-github';
+import {authenticate} from './helpers/_mock-gitea';
 
 const cwd = 'test/fixtures/files';
 const client = require('../lib/get-client');
