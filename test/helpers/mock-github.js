@@ -1,4 +1,5 @@
 import nock from 'nock';
+const urlJoin = require('url-join');
 
 /**
  * Return a `nock` object setup to respond to a github authentication request. Other expectation and responses can be chained.
@@ -17,7 +18,7 @@ export function authenticate(
     giteaApiPathPrefix = env.GITEA_PREFIX || '/api/v1',
   } = {}
 ) {
-  return nock(`${giteaUrl}/${giteaApiPathPrefix}`, {reqheaders: {Authorization: `token ${giteaToken}`}});
+  return nock(urlJoin(giteaUrl, giteaApiPathPrefix), {reqheaders: {'Authorization-TOKEN': giteaToken}});
 }
 
 /**
@@ -38,6 +39,6 @@ export function upload(
   } = {}
 ) {
   return nock(uploadUrl, {
-    reqheaders: {Authorization: `token ${giteaToken}`, 'content-type': contentType, 'content-length': contentLength},
+    reqheaders: {'Authorization-TOKEN': giteaToken, 'content-type': contentType, 'content-length': contentLength},
   });
 }

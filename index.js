@@ -12,11 +12,14 @@ async function verifyConditions(pluginConfig, context) {
   // If the Gitea publish plugin is used and has `assets`, `labels` or `assignees` configured, validate it now in order to prevent any release if the configuration is wrong
   if (options.publish) {
     const publishPlugin =
-      castArray(options.publish).find(config => config.path && config.path === '@saithodev/semantic-release-gitea') || {};
+      castArray(options.publish).find(
+          (config) => config.path && config.path === '@saithodev/semantic-release-gitea'
+      ) || {};
 
-    pluginConfig.assets = defaultTo(pluginConfig.assets, publishPlugin.assets);
-    pluginConfig.labels = defaultTo(pluginConfig.labels, publishPlugin.labels);
-    pluginConfig.assignees = defaultTo(pluginConfig.assignees, publishPlugin.assignees);
+    pluginConfig.assets = defaultTo(
+        pluginConfig.assets,
+        publishPlugin.assets
+    );
   }
 
   await verifyGitea(pluginConfig, context);
