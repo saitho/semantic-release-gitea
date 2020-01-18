@@ -4,9 +4,11 @@
   "description": "Publish release notes to Gitea",
   "main": "index.js",
   "scripts": {
-    "docs:build": "echo 'no docs yet';",
-    "test": "echo 'no tests yet';",
+    "codecov": "codecov -f coverage/coverage-final.json",
+    "lint": "xo",
     "semantic-release": "semantic-release",
+    "test": "nyc ava -v",
+    "docs:build": "echo 'no docs yet';",
     "commit": "git-cz"
   },
   "dependencies": {
@@ -14,18 +16,29 @@
     "aggregate-error": "^3.0.0",
     "debug": "^4.0.0",
     "dir-glob": "^3.0.0",
+    "form-data": "^3.0.0",
     "fs-extra": "^8.0.0",
-    "got": "^10.0.1",
     "globby": "^10.0.0",
+    "got": "^10.0.1",
     "lodash": "^4.17.4",
     "mime": "^2.4.3",
+    "querystring": "^0.2.0",
     "url-join": "^4.0.0"
   },
   "devDependencies": {
     "@saithodev/semantic-release-sharedconf-npm": "^2.0.1",
+    "ava": "^2.0.0",
+    "clear-module": "^4.0.0",
+    "codecov": "^3.5.0",
     "commitizen": "^4.0.3",
     "cz-conventional-changelog": "^3.0.2",
-    "semantic-release": "^16.0.1"
+    "nock": "^11.1.0",
+    "nyc": "^15.0.0",
+    "proxyquire": "^2.0.0",
+    "semantic-release": "^16.0.1",
+    "sinon": "^8.0.0",
+    "tempy": "^0.3.0",
+    "xo": "^0.25.2"
   },
   "repository": {
     "type": "git",
@@ -40,6 +53,30 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "nyc": {
+    "include": [
+      "lib/**/*.js",
+      "index.js"
+    ],
+    "reporter": [
+      "json",
+      "text",
+      "html"
+    ],
+    "all": true
+  },
+  "xo": {
+    "prettier": true,
+    "space": true,
+    "rules": {
+      "camelcase": [
+        "error",
+        {
+          "properties": "never"
+        }
+      ]
     }
   }
 }
