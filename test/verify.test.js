@@ -72,7 +72,7 @@ test.serial('Verify package, token and repository with environment variables', a
     verify({}, {env, options: {repositoryUrl: `git@gitea.io:${owner}/${repo}.git`}, logger: t.context.logger})
   );
   t.true(gitea.isDone());
-  t.deepEqual(t.context.log.args[0], ['Verify Gitea authentication (%s)', 'https://gitea.io/prefix']);
+  t.assert(t.context.log.args[0], 'Verify Gitea authentication (https://gitea.io/prefix)');
 });
 
 test.serial('Verify package, token and repository access with alternative environment varialbes', async t => {
