@@ -20,7 +20,7 @@ jobs:
         sonarcloud:
           organization: saitho
       script:
-        #- pnpm test
+        - pnpm test
         - sonar-scanner
     - stage: release
       if: branch = master
