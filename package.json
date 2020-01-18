@@ -61,7 +61,7 @@
       "index.js"
     ],
     "reporter": [
-      "json",
+      "lcov",
       "text",
       "html"
     ],
