@@ -1,15 +1,12 @@
 import test from 'ava';
 import nock from 'nock';
 import {stub} from 'sinon';
-import proxyquire from 'proxyquire';
 import {authenticate} from './helpers/mock-github';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 // const cwd = 'test/fixtures/files';
-const addChannel = proxyquire('../lib/add-channel', {
-  './get-client': proxyquire('../lib/get-client'),
-});
+const addChannel = require('../lib/add-channel');
 
 test.beforeEach(t => {
   // Mock logger
@@ -26,22 +23,22 @@ test.afterEach.always(() => {
 test.serial('Update a release', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
+  const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
   const pluginConfig = {};
   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
   const releaseId = 1;
+  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${releaseId}`;
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .reply(200, {id: releaseId})
+  const gitea = authenticate(env)
+    .get(`/repos/${owner}/${repo}/releases?page=1`)
+    .reply(200, [{id: releaseId, tag_name: nextRelease.gitTag}])
     .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
       tag_name: nextRelease.gitTag,
       name: nextRelease.name,
       prerelease: false,
     })
-    .reply(200, {html_url: releaseUrl});
+    .reply(200, {url: releaseUrl});
 
   const result = await addChannel(pluginConfig, {
     env,
@@ -52,279 +49,194 @@ test.serial('Update a release', async t => {
   });
 
   t.is(result.url, releaseUrl);
-  t.deepEqual(t.context.log.args[0], ['Updated GitHub release: %s', releaseUrl]);
-  t.true(github.isDone());
+  t.deepEqual(t.context.log.args[0], ['Updated Gitea release: %s', releaseUrl]);
+  t.true(gitea.isDone());
 });
 
-test.serial('Update a maintenance release', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', channel: '1.x', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
-  const releaseId = 1;
+ test.serial('Update a maintenance release', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {};
+   const nextRelease = {gitTag: 'v1.0.0', channel: '1.x', name: 'v1.0.0', notes: 'Test release note body'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+   const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
+   const releaseId = 1;
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .reply(200, {id: releaseId})
-    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      prerelease: false,
-    })
-    .reply(200, {html_url: releaseUrl});
+   const gitea = authenticate(env)
+       .get(`/repos/${owner}/${repo}/releases?page=1`)
+       .reply(200, [{id: releaseId, "tag_name": nextRelease.gitTag}])
+     .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
+       tag_name: nextRelease.gitTag,
+       name: nextRelease.name,
+       prerelease: false,
+     })
+     .reply(200, {url: releaseUrl});
 
-  const result = await addChannel(pluginConfig, {
-    env,
-    options,
-    branch: {type: 'maintenance', channel: '1.x', main: false},
-    nextRelease,
-    logger: t.context.logger,
-  });
+   const result = await addChannel(pluginConfig, {
+     env,
+     options,
+     branch: {type: 'maintenance', channel: '1.x', main: false},
+     nextRelease,
+     logger: t.context.logger,
+   });
 
-  t.is(result.url, releaseUrl);
-  t.deepEqual(t.context.log.args[0], ['Updated GitHub release: %s', releaseUrl]);
-  t.true(github.isDone());
-});
+   t.is(result.url, releaseUrl);
+   t.deepEqual(t.context.log.args[0], ['Updated Gitea release: %s', releaseUrl]);
+   t.true(gitea.isDone());
+ });
 
-test.serial('Update a prerelease', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
-  const releaseId = 1;
+ test.serial('Update a prerelease', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {};
+   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+   const releaseId = 1;
+   const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${releaseId}`;
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .reply(200, {id: releaseId})
-    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      prerelease: false,
-    })
-    .reply(200, {html_url: releaseUrl});
+   const gitea = authenticate(env)
+       .get(`/repos/${owner}/${repo}/releases?page=1`)
+       .reply(200, [{id: releaseId, "tag_name": nextRelease.gitTag}])
+     .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
+       tag_name: nextRelease.gitTag,
+       name: nextRelease.name,
+       prerelease: false,
+     })
+     .reply(200, {url: releaseUrl});
 
-  const result = await addChannel(pluginConfig, {
-    env,
-    options,
-    branch: {type: 'maintenance', channel: '1.x', main: false},
-    nextRelease,
-    logger: t.context.logger,
-  });
+   const result = await addChannel(pluginConfig, {
+     env,
+     options,
+     branch: {type: 'maintenance', channel: '1.x', main: false},
+     nextRelease,
+     logger: t.context.logger,
+   });
 
-  t.is(result.url, releaseUrl);
-  t.deepEqual(t.context.log.args[0], ['Updated GitHub release: %s', releaseUrl]);
-  t.true(github.isDone());
-});
+   t.is(result.url, releaseUrl);
+   t.deepEqual(t.context.log.args[0], ['Updated Gitea release: %s', releaseUrl]);
+   t.true(gitea.isDone());
+ });
 
-test.serial('Update a release with a custom github url', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_URL: 'https://othertesturl.com:443', GITEA_TOKEN: 'gitea_token', GITEA_PREFIX: 'prefix'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `${env.GITEA_URL}/${owner}/${repo}.git`};
-  const releaseUrl = `${env.GITEA_URL}/${owner}/${repo}/releases/${nextRelease.version}`;
-  const releaseId = 1;
+ test.serial('Create the new release if current one is missing', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {};
+   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+   const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .reply(200, {id: releaseId})
-    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      prerelease: false,
-    })
-    .reply(200, {html_url: releaseUrl});
+   const gitea = authenticate(env)
+       .get(`/repos/${owner}/${repo}/releases?page=1`)
+     .reply(404)
+     .post(`/repos/${owner}/${repo}/releases`, {
+       tag_name: nextRelease.gitTag,
+       name: nextRelease.name,
+       body: nextRelease.notes,
+       prerelease: false,
+     })
+     .reply(200, {url: releaseUrl});
 
-  const result = await addChannel(pluginConfig, {
-    env,
-    options,
-    branch: {type: 'release', main: true},
-    nextRelease,
-    logger: t.context.logger,
-  });
+   const result = await addChannel(pluginConfig, {
+     env,
+     options,
+     branch: {type: 'release', main: true},
+     nextRelease,
+     logger: t.context.logger,
+   });
 
-  t.is(result.url, releaseUrl);
-  t.deepEqual(t.context.log.args[0], ['Updated GitHub release: %s', releaseUrl]);
-  t.true(github.isDone());
-});
+   t.is(result.url, releaseUrl);
+   t.deepEqual(t.context.log.args[0], ['There is no release for tag %s, creating a new one', nextRelease.gitTag]);
+   t.deepEqual(t.context.log.args[1], ['Published Gitea release: %s', releaseUrl]);
+   t.true(gitea.isDone());
+ });
 
-test.serial('Update a release, retrying 4 times', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
-  const releaseId = 1;
+ test.serial('Throw error if cannot read current release', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {};
+   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .times(3)
-    .reply(404)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .reply(200, {id: releaseId})
-    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      prerelease: false,
-    })
-    .times(3)
-    .reply(500)
-    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      prerelease: false,
-    })
-    .reply(200, {html_url: releaseUrl});
+   const gitea = authenticate(env)
+       .get(`/repos/${owner}/${repo}/releases?page=1`)
+     .reply(500);
 
-  const result = await addChannel(pluginConfig, {
-    env,
-    options,
-    branch: {type: 'release', main: true},
-    nextRelease,
-    logger: t.context.logger,
-  });
+   await t.throwsAsync(
+     addChannel(pluginConfig, {
+       env,
+       options,
+       branch: {type: 'release', main: true},
+       nextRelease,
+       logger: t.context.logger,
+     })
+   );
 
-  t.is(result.url, releaseUrl);
-  t.deepEqual(t.context.log.args[0], ['Updated GitHub release: %s', releaseUrl]);
-  t.true(github.isDone());
-});
+   t.true(gitea.isDone());
+ });
 
-test.serial('Create the new release if current one is missing', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
+ test.serial('Throw error if cannot create missing current release', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {};
+   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .times(4)
-    .reply(404)
-    .post(`/repos/${owner}/${repo}/releases`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      body: nextRelease.notes,
-      prerelease: false,
-    })
-    .reply(200, {html_url: releaseUrl});
+   const gitea = authenticate(env)
+       .get(`/repos/${owner}/${repo}/releases?page=1`)
+     .reply(404)
+     .post(`/repos/${owner}/${repo}/releases`, {
+       tag_name: nextRelease.gitTag,
+       name: nextRelease.name,
+       body: nextRelease.notes,
+       prerelease: false,
+     })
+     .reply(500);
 
-  const result = await addChannel(pluginConfig, {
-    env,
-    options,
-    branch: {type: 'release', main: true},
-    nextRelease,
-    logger: t.context.logger,
-  });
+   await t.throwsAsync(
+     addChannel(pluginConfig, {
+       env,
+       options,
+       branch: {type: 'release', main: true},
+       nextRelease,
+       logger: t.context.logger,
+     })
+   );
 
-  t.is(result.url, releaseUrl);
-  t.deepEqual(t.context.log.args[0], ['There is no release for tag %s, creating a new one', nextRelease.gitTag]);
-  t.deepEqual(t.context.log.args[1], ['Published GitHub release: %s', releaseUrl]);
-  t.true(github.isDone());
-});
+   t.true(gitea.isDone());
+ });
 
-test.serial('Throw error if cannot read current release', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+ test.serial('Throw error if cannot update release', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {};
+   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+   const releaseId = 1;
 
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .times(4)
-    .reply(500);
+   const github = authenticate(env)
+       .get(`/repos/${owner}/${repo}/releases?page=1`)
+       .reply(200, [{id: releaseId, "tag_name": nextRelease.gitTag}])
+     .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
+       tag_name: nextRelease.gitTag,
+       name: nextRelease.name,
+       prerelease: false,
+     })
+     .reply(404);
 
-  const error = await t.throwsAsync(
-    addChannel(pluginConfig, {
-      env,
-      options,
-      branch: {type: 'release', main: true},
-      nextRelease,
-      logger: t.context.logger,
-    })
-  );
-
-  t.is(error.status, 500);
-  t.true(github.isDone());
-});
-
-test.serial('Throw error if cannot create missing current release', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .times(4)
-    .reply(404)
-    .post(`/repos/${owner}/${repo}/releases`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      body: nextRelease.notes,
-      prerelease: false,
-    })
-    .times(4)
-    .reply(500);
-
-  const error = await t.throwsAsync(
-    addChannel(pluginConfig, {
-      env,
-      options,
-      branch: {type: 'release', main: true},
-      nextRelease,
-      logger: t.context.logger,
-    })
-  );
-
-  t.is(error.status, 500);
-  t.true(github.isDone());
-});
-
-test.serial('Throw error if cannot update release', async t => {
-  const owner = 'test_user';
-  const repo = 'test_repo';
-  const env = {GITEA_TOKEN: 'gitea_token'};
-  const pluginConfig = {};
-  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
-  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
-  const releaseId = 1;
-
-  const github = authenticate(env)
-    .get(`/repos/${owner}/${repo}/releases/tags/${nextRelease.gitTag}`)
-    .reply(200, {id: releaseId})
-    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
-      tag_name: nextRelease.gitTag,
-      name: nextRelease.name,
-      prerelease: false,
-    })
-    .times(4)
-    .reply(404);
-
-  const error = await t.throwsAsync(
-    addChannel(pluginConfig, {
-      env,
-      options,
-      branch: {type: 'release', main: true},
-      nextRelease,
-      logger: t.context.logger,
-    })
-  );
-
-  t.is(error.status, 404);
-  t.true(github.isDone());
-});
+   await t.throwsAsync(
+     addChannel(pluginConfig, {
+       env,
+       options,
+       branch: {type: 'release', main: true},
+       nextRelease,
+       logger: t.context.logger,
+     })
+   );
+   t.true(github.isDone());
+ });
