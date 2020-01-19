@@ -3,7 +3,7 @@ import test from 'ava';
 import nock from 'nock';
 import {stub} from 'sinon';
 import tempy from 'tempy';
-import {authenticate} from './helpers/_mock-gitea';
+import {authenticate, upload} from './helpers/_mock-gitea';
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
@@ -175,9 +175,11 @@ test.afterEach.always(() => {
      })
      .reply(200, { url: untaggedReleaseUrl, id: releaseId})
      .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {draft: false})
-     .reply(200, {url: releaseUrl})
-     .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('A dotfile with no ext')}`)
-     .reply(200, {browser_download_url: assetUrl});
+     .reply(200, {url: releaseUrl});
+
+   const giteaUpload = upload(env)
+       .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('A dotfile with no ext')}`)
+       .reply(200, {browser_download_url: assetUrl});
 
    const result = await publish(pluginConfig, {
      cwd,
@@ -192,6 +194,7 @@ test.afterEach.always(() => {
    t.true(t.context.log.calledWith('Published Gitea release: %s', releaseUrl));
    t.true(t.context.log.calledWith('Published file %s', assetUrl));
    t.true(gitea.isDone());
+   t.true(giteaUpload.isDone());
  });
 
  test.serial('Publish a release with an array of missing assets', async t => {

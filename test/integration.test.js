@@ -5,7 +5,7 @@ import {stub} from 'sinon';
 import proxyquire from 'proxyquire';
 import clearModule from 'clear-module';
 import SemanticReleaseError from '@semantic-release/error';
-import {authenticate} from './helpers/_mock-gitea';
+import {authenticate, upload} from './helpers/_mock-gitea';
 
 const cwd = 'test/fixtures/files';
 const client = require('../lib/get-client');
@@ -132,7 +132,8 @@ test.serial('Verify Gitea auth', async t => {
      })
      .reply(200, {url: releaseUrl, id: releaseId})
      .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {draft: false})
-     .reply(200, {url: releaseUrl})
+     .reply(200, {url: releaseUrl});
+   const giteaUpload = upload(env)
      .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('upload_file_name.txt')}`)
      .reply(200, {browser_download_url: assetUrl})
      .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('Other File')}`)
@@ -149,6 +150,7 @@ test.serial('Verify Gitea auth', async t => {
    t.true(t.context.log.calledWith('Published file %s', assetUrl));
    t.true(t.context.log.calledWith('Published Gitea release: %s', releaseUrl));
    t.true(gitea.isDone());
+   t.true(giteaUpload.isDone());
  });
 
  test.serial('Publish a release with release information in assets', async t => {
@@ -181,7 +183,8 @@ test.serial('Verify Gitea auth', async t => {
      .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {
        draft: false,
      })
-     .reply(200, {url: releaseUrl})
+     .reply(200, {url: releaseUrl});
+   const giteaUpload = upload(env)
      .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('File with release v1.0.0 in label')}`)
      .reply(200, {browser_download_url: assetUrl});
 
@@ -195,6 +198,7 @@ test.serial('Verify Gitea auth', async t => {
    t.true(t.context.log.calledWith('Published file %s', assetUrl));
    t.true(t.context.log.calledWith('Published Gitea release: %s', releaseUrl));
    t.true(gitea.isDone());
+   t.true(giteaUpload.isDone());
  });
 
  test.serial('Update a release', async t => {
@@ -255,7 +259,8 @@ test.serial('Verify Gitea auth', async t => {
      })
      .reply(200, {url: releaseUrl, id: releaseId})
      .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {draft: false})
-     .reply(200, {url: releaseUrl})
+     .reply(200, {url: releaseUrl});
+   const giteaUpload = upload(env)
      .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('upload.txt')}`)
      .reply(200, {browser_download_url: assetUrl})
      .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('Other File')}`)
@@ -272,6 +277,7 @@ test.serial('Verify Gitea auth', async t => {
    t.true(t.context.log.calledWith('Published file %s', assetUrl));
    t.true(t.context.log.calledWith('Published Gitea release: %s', releaseUrl));
    t.true(github.isDone());
+   t.true(giteaUpload.isDone());
  });
 
  test.serial('Verify and update release', async t => {
