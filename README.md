@@ -94,6 +94,9 @@ The `name` and `label` for each assets are generated with [Lodash template](http
 
 **Note**: If a file has a match in `assets` it will be included even if it also has a match in `.gitignore`.
 
+**Note**: The file types in this example are per default not allowed for release assets.
+Make sure to check your Gitea configuration for allowed file types (setting `AttachmentAllowedTypes` inside `[attachment]` scope). 
+
 ##### assets examples
 
 `'dist/*.js'`: include all the `js` files in the `dist` directory, but not in its sub-directories.
