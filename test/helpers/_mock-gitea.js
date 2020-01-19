@@ -19,6 +19,6 @@ export function authenticate(
     const nock = require('nock');
     return nock(
         urlJoin(giteaUrl, giteaApiPathPrefix),
-        {reqheaders: {'Authorization': 'token ' + giteaToken}}
+        {reqheaders: {'Authorization': 'token ' + giteaToken, 'Content-Type': 'application/json'}}
     );
 }
