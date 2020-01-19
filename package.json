@@ -25,7 +25,7 @@
     "url-join": "^4.0.0"
   },
   "devDependencies": {
-    "@saithodev/semantic-release-sharedconf-npm": "^2.0.1",
+    "@saithodev/semantic-release-sharedconf-npm": "^2.0.2",
     "ava": "^2.0.0",
     "clear-module": "^4.0.0",
     "codecov": "^3.5.0",
