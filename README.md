@@ -30,6 +30,7 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     ["@saithodev/semantic-release-gitea", {
+      "giteaUrl": "https://try.gitea.io",
       "assets": [
         {"path": "dist/asset.min.css", "label": "CSS distribution"},
         {"path": "dist/asset.min.js", "label": "JS distribution"}
