@@ -1,7 +1,6 @@
-# @saithodev/emantic-release-gitea
+# @saithodev/semantic-release-gitea
 
-[**semantic-release**](https://github.com/semantic-release/semantic-release) plugin to publish a
-Gitea release and comment on released Pull Requests/Issues.
+[**semantic-release**](https://github.com/semantic-release/semantic-release) plugin to publish a Gitea release.
 
 [![Build Status](https://travis-ci.com/saitho/semantic-release-gitea.svg?branch=master)](https://travis-ci.com/saitho/semantic-release-gitea)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
@@ -12,6 +11,8 @@ Gitea release and comment on released Pull Requests/Issues.
 | `verifyConditions` | Verify the presence and the validity of the authentication (set via [environment variables](#environment-variables)) and the [assets](#assets) option configuration.                                                                     |
 | `publish`          | Publish a Gitea release, optionally uploading file assets.                                                                                                                           |
 | `addChannel`       | Update a Gitea release's `pre-release` field.                                                                                                                                        |
+
+This plugin is based on the [semantic-release GitHub plugin](https://github.com/semantic-release/github). Thanks to everyone who worked on that!
 
 ## Install
 
