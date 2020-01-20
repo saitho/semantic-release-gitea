@@ -43,12 +43,21 @@
     "type": "git",
     "url": "https://github.com/saitho/semantic-release-gitea"
   },
-  "author": "",
+  "author": "Mario Lubenka",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/saitho/semantic-release-gitea/issues"
   },
   "homepage": "https://github.com/saitho/semantic-release-gitea#readme",
+  "keywords": [
+    "git",
+    "gitea",
+    "publish",
+    "pull-request",
+    "release",
+    "semantic-release",
+    "version"
+  ],
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
