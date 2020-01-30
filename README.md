@@ -5,6 +5,7 @@
 [![Build Status](https://travis-ci.com/saitho/semantic-release-gitea.svg?branch=master)](https://travis-ci.com/saitho/semantic-release-gitea)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsaitho%2Fsemantic-release-gitea.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsaitho%2Fsemantic-release-gitea?ref=badge_shield)
 
 | Step               | Description                                                                                                                                                                                                                              |
 |--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -117,3 +118,7 @@ distribution` and `MyLibrary CSS distribution` in the Gitea release.
 `[{path: 'dist/MyLibrary.js', name: 'MyLibrary-${nextRelease.gitTag}.js', label: 'MyLibrary JS (${nextRelease.gitTag}) distribution'}]`: include the file `dist/MyLibrary.js` and upload it to the Gitea release with name `MyLibrary-v1.0.0.js` and label `MyLibrary JS (v1.0.0) distribution` which will generate the link:
 
 > `[MyLibrary JS (v1.0.0) distribution](MyLibrary-v1.0.0.js)`
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsaitho%2Fsemantic-release-gitea.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsaitho%2Fsemantic-release-gitea?ref=badge_large)
