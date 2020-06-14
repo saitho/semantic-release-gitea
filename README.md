@@ -59,6 +59,7 @@ The user associated with the token must have push permission to the repository.
 | `GITEA_TOKEN`   | **Required.** The token used to authenticate with Gitea. |
 | `GITEA_URL`       | **Required.** The URL to your Gitea instance.          |
 | `GITEA_PREFIX` | The Gitea API prefix. (default: /api/v1)                  |
+| `GITEA_SKIP_UNSUPPORTED_ASSETS` | Whether release assets should be skipped if Gitea server does not support them (default: false)   |
 
 ### Options
 
@@ -66,6 +67,7 @@ The user associated with the token must have push permission to the repository.
 |----------------------|--------------------------------------------------------------------|--------------------------------------|
 | `giteaUrl`           | The Gitea endpoint.                                                | `GITEA_URL` environment variable.                                                                                                       |
 | `giteaApiPathPrefix` | The Gitea API prefix.                                              | `GITEA_PREFIX` environment variable.                                                                                                 |
+| `skipUnsupportedAssets` | Whether release assets should be skipped if Gitea server does not support them | `GITEA_SKIP_UNSUPPORTED_ASSETS` environment variable.                                                                                                 |
 | `assets`             | An array of files to upload to the release. See [assets](#assets). | -                                                                                                                                  |
 
 #### assets

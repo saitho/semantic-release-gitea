@@ -237,3 +237,95 @@ test.afterEach.always(() => {
    t.true(gitea.isDone());
  });
 
+test.serial('Publish a release with one unsupported asset', async t => {
+  const owner = 'test_user';
+  const repo = 'test_repo';
+  const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+  const pluginConfig = {
+    skipUnsupportedAssets: true,
+    assets: [{path: '.dotfile', label: 'A dotfile with no ext'}],
+  };
+  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+  const untaggedReleaseUrl = `https://gitea.io/${owner}/${repo}/releases/untagged-123`;
+  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
+  const releaseId = 1;
+
+  const gitea = authenticate(env)
+    .post(`/repos/${owner}/${repo}/releases`, {
+      tag_name: nextRelease.gitTag,
+      name: nextRelease.name,
+      body: nextRelease.notes,
+      draft: true,
+      prerelease: false,
+    })
+    .reply(200, { url: untaggedReleaseUrl, id: releaseId})
+    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {draft: false})
+    .reply(200, {url: releaseUrl});
+
+  const giteaUpload = upload(env)
+    .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('A dotfile with no ext')}`)
+    .reply(400, { "message": "File type is not allowed: text/plain; charset=utf-8" });
+
+  const result = await publish(pluginConfig, {
+    cwd,
+    env,
+    options,
+    branch: {type: 'release', main: true},
+    nextRelease,
+    logger: t.context.logger,
+  });
+
+  t.is(result.url, releaseUrl);
+  t.true(t.context.log.calledWith('%s. Asset ignored.', 'File type is not allowed: text/plain; charset=utf-8'));
+  t.true(t.context.log.calledWith('Published Gitea release: %s', releaseUrl));
+  t.true(gitea.isDone());
+  t.true(giteaUpload.isDone());
+});
+
+test.serial('Abort release with unsupported asset', async t => {
+  const owner = 'test_user';
+  const repo = 'test_repo';
+  const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+  const pluginConfig = {
+    assets: [{path: '.dotfile', label: 'A dotfile with no ext'}],
+  };
+  const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
+  const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+  const untaggedReleaseUrl = `https://gitea.io/${owner}/${repo}/releases/untagged-123`;
+  const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
+  const releaseId = 1;
+
+  const gitea = authenticate(env)
+    .post(`/repos/${owner}/${repo}/releases`, {
+      tag_name: nextRelease.gitTag,
+      name: nextRelease.name,
+      body: nextRelease.notes,
+      draft: true,
+      prerelease: false,
+    })
+    .reply(200, { url: untaggedReleaseUrl, id: releaseId})
+    .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {draft: false})
+    .reply(200, {url: releaseUrl});
+
+  const giteaUpload = upload(env)
+    .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('A dotfile with no ext')}`)
+    .reply(400, { "message": "File type is not allowed: text/plain; charset=utf-8" });
+
+  await t.throwsAsync(async () => {
+      const result = await publish(pluginConfig, {
+        cwd,
+        env,
+        options,
+        branch: {type: 'release', main: true},
+        nextRelease,
+        logger: t.context.logger,
+      });
+      t.is(result.url, releaseUrl);
+      t.true(t.context.log.notCalledWith('%s. Asset ignored.', 'File type is not allowed: text/plain; charset=utf-8'));
+      t.true(t.context.log.notCalledWith('Published Gitea release: %s', releaseUrl));
+      t.true(gitea.isDone());
+      t.true(giteaUpload.isDone());
+    }
+  );
+});
