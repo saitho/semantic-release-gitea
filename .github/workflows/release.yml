@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ["Run Tests"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: mkdir -p docs
+      - name: Semantic Release
+        id: semrel
+        uses: cycjimmy/semantic-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
