@@ -11,6 +11,9 @@
     "docs:build": "echo 'no docs yet';",
     "commit": "git-cz"
   },
+  "engines": {
+    "node": "^10 || ^11 || ^12 || >=14"
+  },
   "dependencies": {
     "@semantic-release/error": "^2.2.0",
     "aggregate-error": "^3.0.0",
