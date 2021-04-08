@@ -1,6 +1,6 @@
 {
   "name": "@saithodev/semantic-release-gitea",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Publish release notes to Gitea",
   "main": "index.js",
   "scripts": {

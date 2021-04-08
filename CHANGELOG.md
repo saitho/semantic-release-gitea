@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/saitho/semantic-release-gitea/compare/v2.0.1...v2.1.0) (2021-04-08)
+
+
+### Features
+
+* process asset path as a template ([e061d07](https://github.com/saitho/semantic-release-gitea/commit/e061d079e6e8d6fbe83a158727a415050cdc288a))
+
 ## [2.0.1](https://github.com/saitho/semantic-release-gitea/compare/v2.0.0...v2.0.1) (2021-03-06)
 
 
