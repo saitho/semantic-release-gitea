@@ -8,7 +8,6 @@
     "lint": "xo",
     "semantic-release": "semantic-release",
     "test": "nyc ava -v",
-    "docs:build": "echo 'no docs yet';",
     "commit": "git-cz"
   },
   "engines": {
