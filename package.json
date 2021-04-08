@@ -37,10 +37,10 @@
     "nock": "^11.1.0",
     "nyc": "^15.0.0",
     "proxyquire": "^2.0.0",
-    "semantic-release": "^17.2.3",
+    "semantic-release": "^17.4.2",
     "sinon": "^8.0.0",
     "tempy": "^0.3.0",
-    "xo": "^0.25.2"
+    "xo": "^0.38.2"
   },
   "repository": {
     "type": "git",
