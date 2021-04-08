@@ -156,7 +156,7 @@ test.afterEach.always(() => {
    const repo = 'test_repo';
    const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
    const pluginConfig = {
-     assets: [['**', '!**/*.txt'], {path: '.dotfile', label: 'A dotfile with no ext'}],
+     assets: [{path: '.dotfile', label: 'A dotfile with no ext'}],
    };
    const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body'};
    const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
@@ -179,6 +179,52 @@ test.afterEach.always(() => {
 
    const giteaUpload = upload(env)
        .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('A dotfile with no ext')}`)
+       .reply(200, {browser_download_url: assetUrl});
+
+   const result = await publish(pluginConfig, {
+     cwd,
+     env,
+     options,
+     branch: {type: 'release', main: true},
+     nextRelease,
+     logger: t.context.logger,
+   });
+
+   t.is(result.url, releaseUrl);
+   t.true(t.context.log.calledWith('Published Gitea release: %s', releaseUrl));
+   t.true(t.context.log.calledWith('Published file %s', assetUrl));
+   t.true(gitea.isDone());
+   t.true(giteaUpload.isDone());
+ });
+
+ test.serial('Publish a release with a asset containing the next release version', async t => {
+   const owner = 'test_user';
+   const repo = 'test_repo';
+   const env = {GITEA_URL: 'https://gitea.io', GITEA_TOKEN: 'gitea_token'};
+   const pluginConfig = {
+     assets: [{path: 'my-software-v${nextRelease.version}.tar.gz', label: 'Version ${nextRelease.version} of my software'}],
+   };
+   const nextRelease = {gitTag: 'v1.0.0', name: 'v1.0.0', notes: 'Test release note body', version: '1.0.0'};
+   const options = {repositoryUrl: `https://gitea.io/${owner}/${repo}.git`};
+   const untaggedReleaseUrl = `https://gitea.io/${owner}/${repo}/releases/untagged-123`;
+   const releaseUrl = `https://gitea.io/${owner}/${repo}/releases/${nextRelease.version}`;
+   const assetUrl = `https://gitea.io/${owner}/${repo}/releases/download/${nextRelease.version}/my-software-v1.0.0.tar.gz`;
+   const releaseId = 1;
+
+   const gitea = authenticate(env)
+     .post(`/repos/${owner}/${repo}/releases`, {
+       tag_name: nextRelease.gitTag,
+       name: nextRelease.name,
+       body: nextRelease.notes,
+       draft: true,
+       prerelease: false,
+     })
+     .reply(200, { url: untaggedReleaseUrl, id: releaseId})
+     .patch(`/repos/${owner}/${repo}/releases/${releaseId}`, {draft: false})
+     .reply(200, {url: releaseUrl});
+
+   const giteaUpload = upload(env)
+       .post(`/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${escape('Version 1.0.0 of my software')}`)
        .reply(200, {browser_download_url: assetUrl});
 
    const result = await publish(pluginConfig, {
