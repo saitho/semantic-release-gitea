@@ -175,7 +175,7 @@ test('Expand directories', async t => {
   await copy(fixtures, path.resolve(cwd, 'dir'));
   const globbedAssets = await globAssets({cwd}, [['dir']]);
 
-  t.deepEqual(sortAssets(globbedAssets), sortAssets(['dir', 'dir/upload_other.txt', 'dir/upload.txt', 'dir/.dotfile']));
+  t.deepEqual(sortAssets(globbedAssets), sortAssets(['dir', 'dir/my-software-v1.0.0.tar.gz', 'dir/upload_other.txt', 'dir/upload.txt', 'dir/.dotfile']));
 });
 
 test('Include empty directory as defined', async t => {
