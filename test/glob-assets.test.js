@@ -181,7 +181,10 @@ test('Expand directories', async t => {
 test('Include empty directory as defined', async t => {
   const cwd = tempy.directory();
   await copy(fixtures, cwd);
-  await ensureDir(path.resolve(cwd, 'empty'));
+  await /* TODO: JSFIX could not patch the breaking change:
+  Creating a directory with fs-extra no longer returns the path 
+  Suggested fix: The returned promise no longer includes the path of the new directory */
+  ensureDir(path.resolve(cwd, 'empty'));
   const globbedAssets = await globAssets({cwd}, [['empty']]);
 
   t.deepEqual(globbedAssets, ['empty']);
