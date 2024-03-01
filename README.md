@@ -73,11 +73,11 @@ The user associated with the token must have push permission to the repository.
 Can be a [glob](https://github.com/isaacs/node-glob#glob-primer) or and `Array` of
 [globs](https://github.com/isaacs/node-glob#glob-primer) and `Object`s with the following properties:
 
-| Property | Description                                                                                              | Default                              |
-| -------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `path`   | **Required.** A [glob](https://github.com/isaacs/node-glob#glob-primer) to identify the files to upload. | -                                    |
-| `name`   | The name of the downloadable file on the GitHub release.                                                 | File name extracted from the `path`. |
-| `label`  | Short description of the file displayed on the GitHub release.                                           | -                                    |
+| Property | Description                                                                                                     | Default                              |
+| -------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `path`   | **Required.** A [glob](https://github.com/isaacs/node-glob#glob-primer) to identify the files to upload.        | -                                    |
+| `name`   | The name of the downloadable file on the GitHub release.                                                        | File name extracted from the `path`. |
+| `label`  | Short description of the file displayed on the GitHub release. `stem` and `ext` are also exposed for templating | -                                    |
 
 Each entry in the `assets` `Array` is globbed individually. A [glob](https://github.com/isaacs/node-glob#glob-primer)
 can be a `String` (`"dist/**/*.js"` or `"dist/mylib.js"`) or an `Array` of `String`s that will be globbed together
@@ -97,7 +97,7 @@ The `name` and `label` for each assets are generated with [Lodash template](http
 **Note**: If a file has a match in `assets` it will be included even if it also has a match in `.gitignore`.
 
 **Note**: The file types in this example are per default not allowed for release assets.
-Make sure to check your Gitea configuration for allowed file types (setting `AttachmentAllowedTypes` inside `[attachment]` scope). 
+Make sure to check your Gitea configuration for allowed file types (setting `AttachmentAllowedTypes` inside `[attachment]` scope).
 
 ##### assets examples
 
