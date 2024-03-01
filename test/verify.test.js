@@ -188,6 +188,25 @@ test.serial('Verify package, token and repository access with alternative enviro
    t.true(gitea.isDone());
  });
 
+ test.serial('Verify "additionalNotes" is a String', async t => {
+  const owner = 'test_user';
+  const repo = 'test_repo';
+  const env = {GITEA_URL: 'https://gitea.io',GITEA_TOKEN: 'gitea_token'};
+  const additionalNotes = 'Additional notes';
+  const gitea = authenticate(env)
+    .get(`/repos/${owner}/${repo}`)
+    .reply(200, {permissions: {push: true}});
+
+  await t.notThrowsAsync(
+    verify(
+      {additionalNotes},
+      {env, options: {repositoryUrl: `git@gitea.io:${owner}/${repo}.git`}, logger: t.context.logger}
+    )
+  );
+
+  t.true(gitea.isDone());
+});
+
  test.serial('Throw SemanticReleaseError for invalid token', async t => {
    const owner = 'test_user';
    const repo = 'test_repo';
